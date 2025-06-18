@@ -1,0 +1,249 @@
+﻿@{
+    ViewData["Title"] = "Dashboard";
+}
+
+<!-- Dashboard Ana Sayfa -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <h2 class="mb-1">Merhaba, @User.Identity.Name! 👋</h2>
+                <p class="text-white-50 mb-0">Mali durumunuzun özeti burada</p>
+            </div>
+            <div>
+                <span class="badge bg-light text-dark fs-6">@DateTime.Now.ToString("dd MMM yyyy")</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Özet Kartları -->
+<div class="row mb-4" id="summary-cards">
+    <div class="col-lg-3 col-md-6 mb-3">
+        <div class="summary-card income">
+            <i class="fas fa-arrow-up summary-icon"></i>
+            <div class="summary-amount" id="total-income">₺0.00</div>
+            <div class="summary-label">Toplam Gelir</div>
+            <small class="opacity-75">Bu ay: <span id="monthly-income">₺0.00</span></small>
+        </div>
+    </div>
+
+    <div class="col-lg-3 col-md-6 mb-3">
+        <div class="summary-card expense">
+            <i class="fas fa-arrow-down summary-icon"></i>
+            <div class="summary-amount" id="total-expense">₺0.00</div>
+            <div class="summary-label">Toplam Gider</div>
+            <small class="opacity-75">Bu ay: <span id="monthly-expense">₺0.00</span></small>
+        </div>
+    </div>
+
+    <div class="col-lg-3 col-md-6 mb-3">
+        <div class="summary-card balance" id="balance-card">
+            <i class="fas fa-balance-scale summary-icon"></i>
+            <div class="summary-amount" id="net-balance">₺0.00</div>
+            <div class="summary-label">Net Bakiye</div>
+            <small class="opacity-75">Bu ay: <span id="monthly-balance">₺0.00</span></small>
+        </div>
+    </div>
+
+    <div class="col-lg-3 col-md-6 mb-3">
+        <div class="summary-card">
+            <i class="fas fa-chart-line summary-icon"></i>
+            <div class="summary-amount" id="total-transactions">0</div>
+            <div class="summary-label">İşlem Sayısı</div>
+            <small class="opacity-75">Bu ay: <span id="monthly-transactions">0</span></small>
+        </div>
+    </div>
+</div>
+
+<!-- Hızlı İşlemler -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="fas fa-bolt me-2"></i>
+                    Hızlı İşlemler
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row g-3">
+                    <!-- Gider Butonları -->
+                    <div class="col-md-2 col-4">
+                        <button class="quick-action" onclick="quickAdd('expense', 'food', 'Yemek')">
+                            <i class="fas fa-utensils quick-action-icon text-danger"></i>
+                            <span class="quick-action-label">Yemek</span>
+                        </button>
+                    </div>
+                    <div class="col-md-2 col-4">
+                        <button class="quick-action" onclick="quickAdd('expense', 'transport', 'Ulaşım')">
+                            <i class="fas fa-bus quick-action-icon text-warning"></i>
+                            <span class="quick-action-label">Ulaşım</span>
+                        </button>
+                    </div>
+                    <div class="col-md-2 col-4">
+                        <button class="quick-action" onclick="quickAdd('expense', 'shopping', 'Alışveriş')">
+                            <i class="fas fa-shopping-cart quick-action-icon text-info"></i>
+                            <span class="quick-action-label">Market</span>
+                        </button>
+                    </div>
+                    <div class="col-md-2 col-4">
+                        <button class="quick-action" onclick="quickAdd('expense', 'bills', 'Fatura')">
+                            <i class="fas fa-file-invoice quick-action-icon text-secondary"></i>
+                            <span class="quick-action-label">Fatura</span>
+                        </button>
+                    </div>
+                    <div class="col-md-2 col-4">
+                        <button class="quick-action" onclick="quickAdd('expense', 'entertainment', 'Eğlence')">
+                            <i class="fas fa-gamepad quick-action-icon text-success"></i>
+                            <span class="quick-action-label">Eğlence</span>
+                        </button>
+                    </div>
+                    <div class="col-md-2 col-4">
+                        <button class="quick-action" onclick="quickAdd('expense', 'other', 'Diğer')">
+                            <i class="fas fa-ellipsis-h quick-action-icon text-muted"></i>
+                            <span class="quick-action-label">Diğer</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Gelir Butonu -->
+                <div class="row mt-3">
+                    <div class="col-12">
+                        <button class="btn btn-success btn-lg w-100" onclick="quickAdd('income', 'salary', 'Gelir')">
+                            <i class="fas fa-plus me-2"></i>
+                            Gelir Ekle
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Son İşlemler ve Bugünkü Özet -->
+<div class="row">
+    <!-- Son İşlemler -->
+    <div class="col-lg-8 mb-4">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">
+                    <i class="fas fa-history me-2"></i>
+                    Son İşlemler
+                </h5>
+                <a href="/Transaction" class="btn btn-outline-primary btn-sm">
+                    Tümünü Gör
+                </a>
+            </div>
+            <div class="card-body">
+                <div id="recent-transactions">
+                    <!-- AJAX ile doldurulacak -->
+                    <div class="text-center py-4">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Yükleniyor...</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bugünkü Özet -->
+    <div class="col-lg-4 mb-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="fas fa-calendar-day me-2"></i>
+                    Bugünkü Durum
+                </h5>
+            </div>
+            <div class="card-body text-center">
+                <div class="mb-3">
+                    <h3 class="text-primary mb-1" id="today-balance">₺0.00</h3>
+                    <small class="text-muted">Bugün harcayabileceğin miktar</small>
+                </div>
+
+                <div class="row text-center">
+                    <div class="col-6">
+                        <div class="border-end">
+                            <div class="text-success fw-bold" id="today-income">+₺0.00</div>
+                            <small class="text-muted">Bugün Gelir</small>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="text-danger fw-bold" id="today-expense">-₺0.00</div>
+                        <small class="text-muted">Bugün Gider</small>
+                    </div>
+                </div>
+
+                <hr>
+
+                <div class="d-grid gap-2">
+                    <a href="/Transaction/Add" class="btn btn-primary">
+                        <i class="fas fa-plus me-2"></i>
+                        Detaylı İşlem Ekle
+                    </a>
+                    <button class="btn btn-outline-info" onclick="refreshDashboard()">
+                        <i class="fas fa-sync-alt me-2"></i>
+                        Yenile
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Hızlı Ekleme Modal -->
+<div class="modal fade" id="quickAddModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="quick-modal-title">
+                    <i class="fas fa-plus me-2"></i>
+                    İşlem Ekle
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+
+            <div class="modal-body">
+                <form id="quickAddForm">
+                    <input type="hidden" id="quick-type" name="type">
+                    <input type="hidden" id="quick-category" name="category">
+
+                    <div class="mb-3 text-center">
+                        <span id="quick-category-display" class="badge bg-primary fs-6"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Tutar *</label>
+                        <div class="input-group input-group-lg">
+                            <span class="input-group-text">₺</span>
+                            <input type="number" class="form-control" id="quick-amount"
+                                   placeholder="0.00" step="0.01" required>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Açıklama</label>
+                        <input type="text" class="form-control" id="quick-description"
+                               placeholder="İsteğe bağlı açıklama">
+                    </div>
+                </form>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    İptal
+                </button>
+                <button type="button" class="btn btn-primary" onclick="saveQuickTransaction()">
+                    <i class="fas fa-check me-2"></i>
+                    Kaydet
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="~/js/dashboard.js"></script>
+}
