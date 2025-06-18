@@ -1,0 +1,135 @@
+# Kişisel Finans Takipçisi - .NET
+
+ASP.NET Core MVC ile geliştirilmiş kapsamlı bir kişisel finans yönetim uygulaması. Kullanıcıların gelir, gider ve finansal hedeflerini sezgisel ve güvenli bir arayüz ile takip etmelerine yardımcı olur.
+
+## 🚀 Özellikler
+
+- **İşlem Yönetimi**: Gelir/gider işlemlerini oluşturma, düzenleme ve silme
+- **Kategori Organizasyonu**: İşlemleri özelleştirilebilir kategorilerle organize etme
+- **Dashboard Genel Bakış**: Gerçek zamanlı finansal içgörüler ve özet istatistikler
+- **Kullanıcı Kimlik Doğrulama**: Güvenli kullanıcı kaydı ve giriş sistemi
+- **Hesap Yönetimi**: Kişisel profil ve ayarlar yönetimi
+- **Responsive Tasarım**: Mobil uyumlu arayüz ile her yerden erişim
+
+## 🛠️ Teknoloji Yığını
+
+- **Backend**: ASP.NET Core 9.0 MVC
+- **Veritabanı**: Microsoft SQL Server
+- **ORM**: Entity Framework Core
+- **Kimlik Doğrulama**: ASP.NET Core Identity
+- **Frontend**: HTML5, CSS3, Bootstrap, JavaScript
+- **Mimari**: Repository Pattern, Service Katmanı, Controller katmanı
+
+## 📋 Gereksinimler
+
+- [.NET 8.0 SDK](https://dotnet.microsoft.com/download)
+- [SQL Server](https://www.microsoft.com/en-us/sql-server/sql-server-downloads) (LocalDB veya Express)
+- [Visual Studio 2022](https://visualstudio.microsoft.com/) veya [VS Code](https://code.visualstudio.com/)
+
+## ⚙️ Kurulum ve Yapılandırma
+
+1. **Repository'yi klonlayın**
+   ```bash
+   git clone https://github.com/fatihkayaci/personel-finance-tracker-dotnet.git
+   cd personel-finance-tracker-dotnet
+   ```
+
+2. **Veritabanı Bağlantısını Yapılandırın**
+   
+   `appsettings.json` dosyasındaki bağlantı dizesini güncelleyin:
+   ```json
+   {
+     "ConnectionStrings": {
+       "DefaultConnection": "Server=(localdb)\\mssqllocaldb;Database=PersonalFinanceTrackerDb;Trusted_Connection=true;MultipleActiveResultSets=true"
+     }
+   }
+   ```
+
+3. **Bağımlılıkları Yükleyin**
+   ```bash
+   dotnet restore
+   ```
+
+4. **Veritabanı Migration'larını Uygulayın**
+   ```bash
+   dotnet ef database update
+   ```
+
+5. **Uygulamayı Çalıştırın**
+   ```bash
+   dotnet run
+   ```
+
+6. **Uygulamaya Erişin**
+   
+   Tarayıcınızda `https://localhost:5001` adresine gidin
+
+## 🏗️ Proje Yapısı
+
+```
+PersonalFinanceTracker/
+├── Controllers/           # MVC Controller'lar
+├── Models/               # Veri Modelleri
+├── Views/                # Razor View'lar
+├── Services/             # İş Mantığı Katmanı
+├── Repository/           # Veri Erişim Katmanı
+├── Interface/            # Service ve Repository Arayüzleri
+├── Data/                 # Entity Framework DbContext
+├── wwwroot/             # Statik Dosyalar (CSS, JS, Resimler)
+```
+
+## 📊 Veritabanı Şeması
+
+### Temel Varlıklar
+- **Users**: Kullanıcı kimlik doğrulama ve profil bilgileri
+- **Transactions**: Finansal işlem kayıtları
+- **Categories**: İşlem kategorizasyonu
+- **Accounts**: Kullanıcı hesap yönetimi
+
+## 🔐 Güvenlik Özellikleri
+
+- ASP.NET Core Identity ile kullanıcı kimlik doğrulama
+- Şifre hashleme ve güvenlik
+- Oturum yönetimi
+- CSRF koruması
+- Girdi doğrulama ve temizleme
+
+## 🎯 Planlanan Özellikler
+
+- [ ] Finansal Raporlar ve Analitik
+- [ ] Bütçe Planlama ve Takip
+- [ ] Veri Dışa Aktarma (PDF, Excel)
+- [ ] Çoklu Para Birimi Desteği
+- [ ] Mobil Uygulama
+- [ ] API Geliştirme
+
+## 🤝 Katkıda Bulunma
+
+Katkılarınızı memnuniyetle karşılıyoruz! Lütfen Pull Request göndermekten çekinmeyin.
+
+1. Projeyi fork edin
+2. Feature branch'inizi oluşturun (`git checkout -b feature/AmazingFeature`)
+3. Değişikliklerinizi commit edin (`git commit -m 'AmazingFeature eklendi'`)
+4. Branch'inizi push edin (`git push origin feature/AmazingFeature`)
+5. Pull Request açın
+
+## 📝 Lisans
+
+Bu proje MIT Lisansı altında lisanslanmıştır - detaylar için [LICENSE](LICENSE) dosyasına bakın.
+
+## 👨‍💻 Geliştirici
+
+**Adınız Soyadınız**
+- GitHub: [@fatihkayaci](https://github.com/fatihkayaci)
+- LinkedIn: [fatih kayacı](https://www.linkedin.com/in/fatih-kayaci-79180a28a/)
+- Email: fatihkayaci@yahoo.com
+
+## 🙏 Teşekkürler
+
+- ASP.NET Core dokümantasyonu ve topluluğu
+- Responsive tasarım bileşenleri için Bootstrap
+- Güvenilir veri depolama için Microsoft SQL Server
+
+---
+
+⭐ **Bu projeyi faydalı bulduysanız, lütfen yıldız verin!**
