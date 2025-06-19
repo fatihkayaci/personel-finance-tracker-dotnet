@@ -1,6 +1,3 @@
-
-using PersonalFinanceTracker.Models;
-
 namespace PersonalFinanceTracker.Interface
 {
     public interface ITransactionRepository
@@ -11,5 +8,6 @@ namespace PersonalFinanceTracker.Interface
         Task<bool> UpdateAsync(TransactionModel transaction);
         Task<bool> DeleteAsync(int id);
         Task<List<TransactionModel>> GetByUserIdAsync(string userId);
+        Task<List<TransactionWithCategoryDto>> GetTransactionsWithCategoryAsync(string userId);
     }
 }

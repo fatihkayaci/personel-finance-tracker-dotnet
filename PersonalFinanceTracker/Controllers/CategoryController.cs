@@ -1,8 +1,5 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using PersonalFinanceTracker.Interface;
-using PersonalFinanceTracker.Models;
-using PersonalFinanceTracker.Models.ViewModels;
 
 namespace PersonalFinanceTracker.Controllers
 {

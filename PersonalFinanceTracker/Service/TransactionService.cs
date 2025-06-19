@@ -1,5 +1,3 @@
-using PersonalFinanceTracker.Models;
-using PersonalFinanceTracker.Interface;
 namespace PersonalFinanceTracker.Service
 {
     public class TransactionService : ITransactionService
@@ -10,7 +8,7 @@ namespace PersonalFinanceTracker.Service
         {
             _transactionRepository = transactionRepository;
         }
-        
+
         public Task<List<TransactionModel>> GetAllTransactionsAsync()
         {
             return _transactionRepository.GetAllAsync();
@@ -35,8 +33,11 @@ namespace PersonalFinanceTracker.Service
         {
             return _transactionRepository.GetByUserIdAsync(userId);
         }
+        public async Task<List<TransactionWithCategoryDto>> GetTransactionsWithCategoryAsync(string userId)
+        {
+            return await _transactionRepository.GetTransactionsWithCategoryAsync(userId);
+        }
 
-        
         public async Task<decimal> GetTotalIncomeAsync(string userId)
         {
             var transactions = await _transactionRepository.GetByUserIdAsync(userId);
@@ -73,5 +74,5 @@ namespace PersonalFinanceTracker.Service
             .Where(t => t.CategoryId == categoryId)
             .ToList();
         }
-    }    
+    }
 }

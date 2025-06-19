@@ -1,5 +1,3 @@
-using PersonalFinanceTracker.Models;
-using PersonalFinanceTracker.Interface;
 namespace PersonalFinanceTracker.Service
 {
     public class CategoryService : ICategoryService

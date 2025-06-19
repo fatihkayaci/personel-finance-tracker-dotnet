@@ -1,7 +1,5 @@
 using Microsoft.EntityFrameworkCore;
 using PersonalFinanceTracker.Data;
-using PersonalFinanceTracker.Models;
-using PersonalFinanceTracker.Interface;
 
 namespace PersonalFinanceTracker.Repository
 {
@@ -49,6 +47,24 @@ namespace PersonalFinanceTracker.Repository
             return await _dbContext.Transactions
             .Where(t => t.UserId == userId)
             .ToListAsync();
+        }
+        public async Task<List<TransactionWithCategoryDto>> GetTransactionsWithCategoryAsync(string userId)
+        {
+            return await _dbContext.Transactions
+                .Where(t => t.UserId == userId)
+                .Join(_dbContext.Categories,
+                    t => t.CategoryId,
+                    c => c.Id,
+                    (t, c) => new TransactionWithCategoryDto
+                    {
+                        Id = t.Id,
+                        Amount = t.Amount,
+                        Description = t.Description,
+                        TransactionDate = t.TransactionDate,
+                        TransactionType = t.TransactionType,
+                        CategoryName = c.Name
+                    })
+                .ToListAsync();
         }
 
         public async Task<bool> UpdateAsync(TransactionModel transaction)

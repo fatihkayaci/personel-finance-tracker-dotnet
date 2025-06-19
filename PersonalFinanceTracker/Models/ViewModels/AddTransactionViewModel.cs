@@ -2,7 +2,7 @@ namespace PersonalFinanceTracker.Models.ViewModels
 {
     public class AddTransactionViewModel
     {
-         // Transaction bilgileri
+        // Transaction bilgileri
         public decimal Amount { get; set; }
         public string? Description { get; set; }
         public DateTime TransactionDate { get; set; }

@@ -1,5 +1,3 @@
-
-using PersonalFinanceTracker.Models;
 namespace PersonalFinanceTracker.Interface
 {
     public interface ITransactionService
@@ -10,7 +8,7 @@ namespace PersonalFinanceTracker.Interface
         Task<bool> UpdateTransactionAsync(TransactionModel transaction);
         Task<bool> DeleteTransactionAsync(int id);
         Task<List<TransactionModel>> GetTransactionsByUserIdAsync(string userId);
-
+        Task<List<TransactionWithCategoryDto>> GetTransactionsWithCategoryAsync(string userId);
         Task<decimal> GetTotalIncomeAsync(string userId);
         Task<decimal> GetTotalExpenseAsync(string userId);
         Task<decimal> GetBalanceAsync(string userId);

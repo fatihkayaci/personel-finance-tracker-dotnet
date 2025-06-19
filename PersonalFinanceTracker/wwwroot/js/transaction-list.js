@@ -1,368 +1,168 @@
-// wwwroot/js/transaction-list.js
-
 // Global değişkenler
-let currentPage = 1;
-let currentPageSize = 25;
-let currentSort = { field: 'date', direction: 'desc' };
-let allTransactions = [];
-let filteredTransactions = [];
 let deleteTransactionId = null;
 
+// Sayfa yüklendiğinde
 document.addEventListener('DOMContentLoaded', function() {
-    // Sayfa yüklendiğinde
-    loadCategories();
-    loadTransactions();
+    // Event listeners kurulumu
+    setupEventListeners();
     
     // Bu ayın başlangıç ve bitiş tarihlerini set et
     setCurrentMonthDates();
     
-    // Event listeners
-    setupEventListeners();
+    // Statik HTML verilerini kontrol et
+    checkStaticData();
 });
 
 // Event listeners kurulumu
 function setupEventListeners() {
-    // Arama inputu
-    document.getElementById('searchInput').addEventListener('input', debounce(applyFilters, 300));
+    // Arama inputu (300ms gecikme ile)
+    document.getElementById('searchInput').addEventListener('input', debounce(filterTable, 300));
     
     // Filter değişiklikleri
-    document.getElementById('typeFilter').addEventListener('change', applyFilters);
-    document.getElementById('categoryFilter').addEventListener('change', applyFilters);
-    document.getElementById('startDate').addEventListener('change', applyFilters);
-    document.getElementById('endDate').addEventListener('change', applyFilters);
+    document.getElementById('typeFilter').addEventListener('change', filterTable);
+    document.getElementById('categoryFilter').addEventListener('change', filterTable);
+    document.getElementById('startDate').addEventListener('change', filterTable);
+    document.getElementById('endDate').addEventListener('change', filterTable);
     
     // Delete modal event
-    document.getElementById('confirmDeleteBtn').addEventListener('click', confirmDelete);
-}
-
-// Kategorileri yükle
-async function loadCategories() {
-    try {
-        const response = await fetch('/Transaction/GetCategories');
-        const data = await response.json();
-        
-        if (data.success) {
-            const categorySelect = document.getElementById('categoryFilter');
-            
-            // Mevcut kategoriler temizle (ilk option hariç)
-            while (categorySelect.children.length > 1) {
-                categorySelect.removeChild(categorySelect.lastChild);
-            }
-            
-            // Yeni kategorileri ekle
-            data.categories.forEach(category => {
-                const option = document.createElement('option');
-                option.value = category.id;
-                option.textContent = category.name;
-                categorySelect.appendChild(option);
-            });
-        }
-    } catch (error) {
-        console.error('Kategoriler yüklenirken hata:', error);
+    const confirmBtn = document.getElementById('confirmDeleteBtn');
+    if (confirmBtn) {
+        confirmBtn.addEventListener('click', confirmDelete);
     }
 }
 
-// İşlemleri yükle
-async function loadTransactions() {
-    showLoading(true);
+// Statik HTML verilerini kontrol et
+function checkStaticData() {
+    const tbody = document.getElementById('transactions-tbody');
+    const rows = tbody.querySelectorAll('tr');
     
-    try {
-        const response = await fetch('/Transaction/GetAll');
-        const data = await response.json();
-        
-        if (data.success) {
-            allTransactions = data.transactions;
-            applyFilters();
-        } else {
-            showError('İşlemler yüklenemedi: ' + data.message);
-        }
-    } catch (error) {
-        console.error('İşlemler yüklenirken hata:', error);
-        showError('Bağlantı hatası oluştu');
-    } finally {
-        showLoading(false);
+    if (rows.length === 0) {
+        showTable(false);
+        showEmptyState(true);
+    } else {
+        showTable(true);
+        showEmptyState(false);
+        filterTable(); // İlk filtrelemeyi yap
     }
 }
 
-// Filtreleri uygula
-function applyFilters() {
+// Tablo filtreleme
+function filterTable() {
     const searchTerm = document.getElementById('searchInput').value.toLowerCase();
     const typeFilter = document.getElementById('typeFilter').value;
     const categoryFilter = document.getElementById('categoryFilter').value;
     const startDate = document.getElementById('startDate').value;
     const endDate = document.getElementById('endDate').value;
     
-    filteredTransactions = allTransactions.filter(transaction => {
+    const rows = document.querySelectorAll('#transactions-tbody tr');
+    let visibleCount = 0;
+    let totalIncome = 0;
+    let totalExpense = 0;
+    
+    rows.forEach(row => {
+        let show = true;
+        
         // Arama filtresi
-        if (searchTerm && !transaction.description.toLowerCase().includes(searchTerm)) {
-            return false;
+        if (searchTerm) {
+            const description = row.cells[3].textContent.toLowerCase();
+            const category = row.cells[2].textContent.toLowerCase();
+            if (!description.includes(searchTerm) && !category.includes(searchTerm)) {
+                show = false;
+            }
         }
         
         // Tip filtresi
-        if (typeFilter && transaction.type !== typeFilter) {
-            return false;
+        if (typeFilter && row.dataset.type !== typeFilter) {
+            show = false;
         }
         
         // Kategori filtresi
-        if (categoryFilter && transaction.categoryId != categoryFilter) {
-            return false;
+        if (categoryFilter && row.dataset.category !== categoryFilter) {
+            show = false;
         }
         
         // Tarih filtresi
-        const transactionDate = new Date(transaction.date);
-        if (startDate && transactionDate < new Date(startDate)) {
-            return false;
-        }
-        if (endDate && transactionDate > new Date(endDate)) {
-            return false;
+        if (startDate && row.dataset.date < startDate) {
+            show = false;
         }
         
-        return true;
+        if (endDate && row.dataset.date > endDate) {
+            show = false;
+        }
+        
+        row.style.display = show ? '' : 'none';
+        
+        if (show) {
+            visibleCount++;
+            // Filtrelenmiş toplamları hesapla
+            const amountText = row.cells[4].textContent.replace(/[^\d,.-]/g, '').replace(',', '.');
+            const amount = parseFloat(amountText) || 0;
+            if (row.dataset.type === '1') {
+                totalIncome += amount;
+            } else if (row.dataset.type === '2') {
+                totalExpense += amount;
+            }
+        }
     });
     
-    // Sıralama uygula
-    applySorting();
+    // Boş durum kontrolü
+    document.getElementById('empty-state').style.display = visibleCount === 0 ? 'block' : 'none';
+    document.getElementById('transactions-table').style.display = visibleCount === 0 ? 'none' : 'block';
     
-    // Özet güncelle
-    updateSummary();
+    // Kayıt sayısını güncelle
+    document.getElementById('record-info').textContent = `${visibleCount} kayıt görüntüleniyor`;
     
-    // Tabloyu güncelle
-    currentPage = 1;
-    updateTable();
+    // Filtrelenmiş özet bilgileri güncelle
+    updateFilteredSummary(totalIncome, totalExpense, visibleCount);
 }
 
-// Sıralama uygula
-function applySorting() {
-    filteredTransactions.sort((a, b) => {
-        let aValue = a[currentSort.field];
-        let bValue = b[currentSort.field];
-        
-        if (currentSort.field === 'date') {
-            aValue = new Date(aValue);
-            bValue = new Date(bValue);
-        }
-        
-        if (currentSort.field === 'amount') {
-            aValue = parseFloat(aValue);
-            bValue = parseFloat(bValue);
-        }
-        
-        if (aValue < bValue) {
-            return currentSort.direction === 'asc' ? -1 : 1;
-        }
-        if (aValue > bValue) {
-            return currentSort.direction === 'asc' ? 1 : -1;
-        }
-        return 0;
-    });
+// Filtrelenmiş özet bilgileri güncelle
+function updateFilteredSummary(income, expense, count) {
+    const balance = income - expense;
+    
+    document.getElementById('filtered-income').textContent = formatCurrency(income);
+    document.getElementById('filtered-expense').textContent = formatCurrency(expense);
+    document.getElementById('filtered-balance').textContent = formatCurrency(balance);
+    document.getElementById('filtered-count').textContent = count;
 }
 
-// Özet bilgileri güncelle
-function updateSummary() {
-    const totalIncome = filteredTransactions
-        .filter(t => t.type === 'income')
-        .reduce((sum, t) => sum + parseFloat(t.amount), 0);
-    
-    const totalExpense = filteredTransactions
-        .filter(t => t.type === 'expense')
-        .reduce((sum, t) => sum + parseFloat(t.amount), 0);
-    
-    const netBalance = totalIncome - totalExpense;
-    const transactionCount = filteredTransactions.length;
-    
-    document.getElementById('filtered-income').textContent = formatCurrency(totalIncome);
-    document.getElementById('filtered-expense').textContent = formatCurrency(totalExpense);
-    document.getElementById('filtered-balance').textContent = formatCurrency(netBalance);
-    document.getElementById('filtered-count').textContent = transactionCount;
-}
-
-// Tabloyu güncelle
-function updateTable() {
-    const startIndex = (currentPage - 1) * currentPageSize;
-    const endIndex = startIndex + currentPageSize;
-    const pageTransactions = filteredTransactions.slice(startIndex, endIndex);
-    
-    const tbody = document.getElementById('transactions-tbody');
-    
-    if (pageTransactions.length === 0) {
-        showEmptyState(true);
-        showTable(false);
-        return;
-    }
-    
-    showEmptyState(false);
-    showTable(true);
-    
-    // Tablo içeriğini oluştur
-    let html = '';
-    pageTransactions.forEach(transaction => {
-        const isIncome = transaction.type === 'income';
-        const typeClass = isIncome ? 'success' : 'danger';
-        const typeIcon = isIncome ? 'fa-arrow-up' : 'fa-arrow-down';
-        const amountPrefix = isIncome ? '+' : '-';
-        
-        html += `
-            <tr>
-                <td>${formatDate(transaction.date)}</td>
-                <td>
-                    <span class="badge bg-${typeClass}">
-                        <i class="fas ${typeIcon} me-1"></i>
-                        ${isIncome ? 'Gelir' : 'Gider'}
-                    </span>
-                </td>
-                <td>${transaction.categoryName}</td>
-                <td>
-                    <span class="text-truncate d-inline-block" style="max-width: 200px;" 
-                          title="${transaction.description}">
-                        ${transaction.description}
-                    </span>
-                </td>
-                <td>
-                    <span class="fw-bold text-${typeClass}">
-                        ${amountPrefix}${formatCurrency(transaction.amount)}
-                    </span>
-                </td>
-                <td>
-                    <div class="btn-group btn-group-sm">
-                        <a href="/Transaction/Edit/${transaction.id}" 
-                           class="btn btn-outline-primary" title="Düzenle">
-                            <i class="fas fa-edit"></i>
-                        </a>
-                        <button class="btn btn-outline-danger" 
-                                onclick="showDeleteModal(${transaction.id}, '${transaction.description}', ${transaction.amount}, '${transaction.type}')" 
-                                title="Sil">
-                            <i class="fas fa-trash"></i>
-                        </button>
-                    </div>
-                </td>
-            </tr>
-        `;
-    });
-    
-    tbody.innerHTML = html;
-    
-    // Pagination güncelle
-    updatePagination();
-}
-
-// Pagination güncelle
-function updatePagination() {
-    const totalPages = Math.ceil(filteredTransactions.length / currentPageSize);
-    const pagination = document.getElementById('pagination');
-    
-    let html = '';
-    
-    // Previous button
-    html += `
-        <li class="page-item ${currentPage === 1 ? 'disabled' : ''}">
-            <a class="page-link" href="#" onclick="changePage(${currentPage - 1})">
-                <i class="fas fa-chevron-left"></i>
-            </a>
-        </li>
-    `;
-    
-    // Page numbers
-    const startPage = Math.max(1, currentPage - 2);
-    const endPage = Math.min(totalPages, currentPage + 2);
-    
-    if (startPage > 1) {
-        html += `<li class="page-item"><a class="page-link" href="#" onclick="changePage(1)">1</a></li>`;
-        if (startPage > 2) {
-            html += `<li class="page-item disabled"><span class="page-link">...</span></li>`;
-        }
-    }
-    
-    for (let i = startPage; i <= endPage; i++) {
-        html += `
-            <li class="page-item ${i === currentPage ? 'active' : ''}">
-                <a class="page-link" href="#" onclick="changePage(${i})">${i}</a>
-            </li>
-        `;
-    }
-    
-    if (endPage < totalPages) {
-        if (endPage < totalPages - 1) {
-            html += `<li class="page-item disabled"><span class="page-link">...</span></li>`;
-        }
-        html += `<li class="page-item"><a class="page-link" href="#" onclick="changePage(${totalPages})">${totalPages}</a></li>`;
-    }
-    
-    // Next button
-    html += `
-        <li class="page-item ${currentPage === totalPages ? 'disabled' : ''}">
-            <a class="page-link" href="#" onclick="changePage(${currentPage + 1})">
-                <i class="fas fa-chevron-right"></i>
-            </a>
-        </li>
-    `;
-    
-    pagination.innerHTML = html;
-}
-
-// Sayfa değiştir
-function changePage(page) {
-    const totalPages = Math.ceil(filteredTransactions.length / currentPageSize);
-    if (page >= 1 && page <= totalPages) {
-        currentPage = page;
-        updateTable();
-    }
-}
-
-// Sayfa boyutu değiştir
-function changePageSize() {
-    currentPageSize = parseInt(document.getElementById('pageSize').value);
-    currentPage = 1;
-    updateTable();
-}
-
-// Tablo sırala
-function sortTable(field) {
-    if (currentSort.field === field) {
-        currentSort.direction = currentSort.direction === 'asc' ? 'desc' : 'asc';
-    } else {
-        currentSort.field = field;
-        currentSort.direction = 'desc';
-    }
-    
-    // Sort icon'ları güncelle
-    document.querySelectorAll('[id^="sort-"]').forEach(icon => {
-        icon.className = 'fas fa-sort ms-1';
-    });
-    
-    const icon = document.getElementById(`sort-${field}`);
-    icon.className = `fas fa-sort-${currentSort.direction === 'asc' ? 'up' : 'down'} ms-1`;
-    
-    applySorting();
-    updateTable();
-}
-
-// Tarih filtresi ayarla
+// Hızlı tarih filtreleri
 function setDateFilter(period) {
-    const now = new Date();
-    const startDate = document.getElementById('startDate');
-    const endDate = document.getElementById('endDate');
+    const today = new Date();
+    let startDate = '';
+    let endDate = today.toISOString().split('T')[0];
     
-    endDate.value = now.toISOString().split('T')[0];
+    // Önceki aktif butonu kaldır
+    document.querySelectorAll('.btn-group .btn').forEach(btn => btn.classList.remove('active'));
     
-    switch (period) {
+    switch(period) {
+        case 'all':
+            startDate = '';
+            endDate = '';
+            break;
         case 'today':
-            startDate.value = now.toISOString().split('T')[0];
+            startDate = endDate;
             break;
         case 'week':
-            const weekStart = new Date(now.setDate(now.getDate() - now.getDay()));
-            startDate.value = weekStart.toISOString().split('T')[0];
+            const weekStart = new Date(today);
+            weekStart.setDate(today.getDate() - today.getDay());
+            startDate = weekStart.toISOString().split('T')[0];
             break;
         case 'month':
-            const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
-            startDate.value = monthStart.toISOString().split('T')[0];
+            startDate = new Date(today.getFullYear(), today.getMonth(), 1).toISOString().split('T')[0];
             break;
         case 'year':
-            const yearStart = new Date(now.getFullYear(), 0, 1);
-            startDate.value = yearStart.toISOString().split('T')[0];
+            startDate = new Date(today.getFullYear(), 0, 1).toISOString().split('T')[0];
             break;
     }
     
-    applyFilters();
+    document.getElementById('startDate').value = startDate;
+    document.getElementById('endDate').value = endDate;
+    
+    // Aktif butonu işaretle
+    event.target.classList.add('active');
+    
+    filterTable();
 }
 
 // Bu ayın tarihlerini set et
@@ -383,31 +183,43 @@ function clearFilters() {
     document.getElementById('startDate').value = '';
     document.getElementById('endDate').value = '';
     
-    applyFilters();
+    // Tümü butonunu aktif yap
+    document.querySelectorAll('.btn-group .btn').forEach(btn => btn.classList.remove('active'));
+    const allButton = document.querySelector('[onclick="setDateFilter(\'all\')"]');
+    if (allButton) allButton.classList.add('active');
+    
+    filterTable();
 }
 
-// Silme modal'ını göster
-function showDeleteModal(id, description, amount, type) {
+// İşlem düzenleme
+function editTransaction(id) {
+    window.location.href = `/Transaction/Edit/${id}`;
+}
+
+// İşlem silme modal'ını göster
+function deleteTransaction(id, description, amount, type) {
     deleteTransactionId = id;
     
     const info = document.getElementById('delete-transaction-info');
-    const isIncome = type === 'income';
+    const isIncome = type === 1;
     const typeText = isIncome ? 'Gelir' : 'Gider';
     const amountPrefix = isIncome ? '+' : '-';
     
-    info.innerHTML = `
-        <div class="d-flex justify-content-between">
-            <div>
-                <strong>${description}</strong><br>
-                <small class="text-muted">${typeText}</small>
+    if (info) {
+        info.innerHTML = `
+            <div class="d-flex justify-content-between">
+                <div>
+                    <strong>${description || 'Açıklama yok'}</strong><br>
+                    <small class="text-muted">${typeText}</small>
+                </div>
+                <div class="text-end">
+                    <span class="fw-bold text-${isIncome ? 'success' : 'danger'}">
+                        ${amountPrefix}${formatCurrency(amount)}
+                    </span>
+                </div>
             </div>
-            <div class="text-end">
-                <span class="fw-bold text-${isIncome ? 'success' : 'danger'}">
-                    ${amountPrefix}${formatCurrency(amount)}
-                </span>
-            </div>
-        </div>
-    `;
+        `;
+    }
     
     const modal = new bootstrap.Modal(document.getElementById('deleteModal'));
     modal.show();
@@ -425,6 +237,7 @@ async function confirmDelete() {
         const response = await fetch(`/Transaction/Delete/${deleteTransactionId}`, {
             method: 'DELETE',
             headers: {
+                'Content-Type': 'application/json',
                 'RequestVerificationToken': getAntiForgeryToken()
             }
         });
@@ -438,8 +251,8 @@ async function confirmDelete() {
             const modal = bootstrap.Modal.getInstance(document.getElementById('deleteModal'));
             modal.hide();
             
-            // Listeyi yenile
-            loadTransactions();
+            // Sayfayı yenile
+            setTimeout(() => window.location.reload(), 1000);
         } else {
             showToast(result.message || 'İşlem silinemedi', 'error');
         }
@@ -455,148 +268,36 @@ async function confirmDelete() {
 
 // CSV export
 function exportToCSV() {
-    if (filteredTransactions.length === 0) {
-        showToast('Export edilecek işlem bulunamadı', 'error');
+    const visibleRows = Array.from(document.querySelectorAll('#transactions-tbody tr'))
+        .filter(row => row.style.display !== 'none');
+    
+    if (visibleRows.length === 0) {
+        showToast('Dışa aktarılacak veri bulunamadı', 'error');
         return;
     }
     
-    const headers = ['Tarih', 'Tip', 'Kategori', 'Açıklama', 'Tutar'];
-    const csvContent = [
-        headers.join(','),
-        ...filteredTransactions.map(t => [
-            t.date,
-            t.type === 'income' ? 'Gelir' : 'Gider',
-            t.categoryName,
-            `"${t.description}"`,
-            t.amount
-        ].join(','))
-    ].join('\n');
+    let csv = 'Tarih,Tip,Kategori,Açıklama,Tutar\n';
     
-    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    visibleRows.forEach(row => {
+        const cells = Array.from(row.cells).slice(0, 5); // İşlemler sütununu hariç tut
+        const csvRow = cells.map(cell => `"${cell.textContent.trim()}"`).join(',');
+        csv += csvRow + '\n';
+    });
+    
+    // CSV dosyasını indir
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
     const link = document.createElement('a');
-    link.href = URL.createObjectURL(blob);
-    link.download = `islemler_${new Date().toISOString().split('T')[0]}.csv`;
+    const url = URL.createObjectURL(blob);
+    link.setAttribute('href', url);
+    link.setAttribute('download', `islemler_${new Date().toISOString().split('T')[0]}.csv`);
+    document.body.appendChild(link);
     link.click();
-    
-    showToast('CSV dosyası indirildi', 'success');
+    document.body.removeChild(link);
 }
 
-// Yazdır
+// Print
 function printTable() {
-    const printWindow = window.open('', '_blank');
-    const printContent = `
-        <!DOCTYPE html>
-        <html>
-        <head>
-            <title>İşlem Listesi</title>
-            <style>
-                body { font-family: Arial, sans-serif; margin: 20px; }
-                table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-                th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
-                th { background-color: #f2f2f2; font-weight: bold; }
-                .text-success { color: #28a745; }
-                .text-danger { color: #dc3545; }
-                .header { text-align: center; margin-bottom: 20px; }
-                .summary { display: flex; justify-content: space-around; margin: 20px 0; }
-                .summary-item { text-align: center; }
-            </style>
-        </head>
-        <body>
-            <div class="header">
-                <h1>İşlem Listesi</h1>
-                <p>Yazdırma Tarihi: ${new Date().toLocaleDateString('tr-TR')}</p>
-            </div>
-            
-            <div class="summary">
-                <div class="summary-item">
-                    <strong>Toplam Gelir:</strong><br>
-                    ${document.getElementById('filtered-income').textContent}
-                </div>
-                <div class="summary-item">
-                    <strong>Toplam Gider:</strong><br>
-                    ${document.getElementById('filtered-expense').textContent}
-                </div>
-                <div class="summary-item">
-                    <strong>Net Bakiye:</strong><br>
-                    ${document.getElementById('filtered-balance').textContent}
-                </div>
-                <div class="summary-item">
-                    <strong>İşlem Sayısı:</strong><br>
-                    ${document.getElementById('filtered-count').textContent}
-                </div>
-            </div>
-            
-            <table>
-                <thead>
-                    <tr>
-                        <th>Tarih</th>
-                        <th>Tip</th>
-                        <th>Kategori</th>
-                        <th>Açıklama</th>
-                        <th>Tutar</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    ${filteredTransactions.map(t => `
-                        <tr>
-                            <td>${formatDate(t.date)}</td>
-                            <td>${t.type === 'income' ? 'Gelir' : 'Gider'}</td>
-                            <td>${t.categoryName}</td>
-                            <td>${t.description}</td>
-                            <td class="text-${t.type === 'income' ? 'success' : 'danger'}">
-                                ${t.type === 'income' ? '+' : '-'}${formatCurrency(t.amount)}
-                            </td>
-                        </tr>
-                    `).join('')}
-                </tbody>
-            </table>
-        </body>
-        </html>
-    `;
-    
-    printWindow.document.write(printContent);
-    printWindow.document.close();
-    printWindow.focus();
-    setTimeout(() => {
-        printWindow.print();
-        printWindow.close();
-    }, 250);
-}
-
-// Loading göster/gizle
-function showLoading(show) {
-    document.getElementById('loading-spinner').style.display = show ? 'block' : 'none';
-}
-
-// Tablo göster/gizle
-function showTable(show) {
-    document.getElementById('transactions-table').style.display = show ? 'block' : 'none';
-}
-
-// Boş durum göster/gizle
-function showEmptyState(show) {
-    document.getElementById('empty-state').style.display = show ? 'block' : 'none';
-}
-
-// Hata göster
-function showError(message) {
-    showLoading(false);
-    showTable(false);
-    showEmptyState(false);
-    
-    const tbody = document.getElementById('transactions-tbody');
-    tbody.innerHTML = `
-        <tr>
-            <td colspan="6" class="text-center py-4">
-                <i class="fas fa-exclamation-triangle text-warning fa-2x mb-2"></i><br>
-                <span class="text-muted">${message}</span><br>
-                <button class="btn btn-primary btn-sm mt-2" onclick="loadTransactions()">
-                    Tekrar Dene
-                </button>
-            </td>
-        </tr>
-    `;
-    showTable(true);
+    window.print();
 }
 
 // Utility functions
@@ -607,26 +308,32 @@ function formatCurrency(amount) {
     }).format(amount || 0);
 }
 
-function formatDate(dateString) {
-    const date = new Date(dateString);
-    return date.toLocaleDateString('tr-TR');
-}
-
 function getAntiForgeryToken() {
     return document.querySelector('input[name="__RequestVerificationToken"]')?.value || '';
 }
 
 function showToast(message, type = 'success') {
+    // Bootstrap toast varsa kullan, yoksa alert
     const toastElement = document.getElementById(type === 'success' ? 'successToast' : 'errorToast');
-    const messageElement = document.getElementById(type === 'success' ? 'successMessage' : 'errorMessage');
-    
-    if (toastElement && messageElement) {
-        messageElement.textContent = message;
+    if (toastElement) {
+        const messageElement = toastElement.querySelector('.toast-body');
+        if (messageElement) messageElement.textContent = message;
         const toast = new bootstrap.Toast(toastElement);
         toast.show();
     } else {
         alert(message);
     }
+}
+
+// Loading/Table/EmptyState kontrolleri
+function showTable(show) {
+    const tableElement = document.getElementById('transactions-table');
+    if (tableElement) tableElement.style.display = show ? 'block' : 'none';
+}
+
+function showEmptyState(show) {
+    const emptyElement = document.getElementById('empty-state');
+    if (emptyElement) emptyElement.style.display = show ? 'block' : 'none';
 }
 
 // Debounce function (arama için)

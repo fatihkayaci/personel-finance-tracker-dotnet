@@ -1,7 +1,5 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using PersonalFinanceTracker.Interface;
-using PersonalFinanceTracker.Models;
 using PersonalFinanceTracker.Models.ViewModels;
 using System.Security.Claims;
 namespace PersonalFinanceTracker.Controllers
@@ -20,13 +18,18 @@ namespace PersonalFinanceTracker.Controllers
         [HttpGet]
         public async Task<IActionResult> Index()
         {
-            var userId = User.Identity?.Name;
-            if (string.IsNullOrEmpty(userId))
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (string.IsNullOrEmpty(userId)) return BadRequest("User not found");
+            
+            var viewModel = new TransactionIndexViewModel
             {
-                return BadRequest("User not found");
-            }
-            var transactions = await _transactionService.GetTransactionsByUserIdAsync(userId);
-            return View(transactions);
+                Transactions = await _transactionService.GetTransactionsWithCategoryAsync(userId),
+                TotalIncome = await _transactionService.GetTotalIncomeAsync(userId),
+                TotalExpense = await _transactionService.GetTotalExpenseAsync(userId),
+                Balance = await _transactionService.GetBalanceAsync(userId)
+            };
+            
+            return View(viewModel);
         }
 
         [HttpGet]
@@ -49,11 +52,6 @@ namespace PersonalFinanceTracker.Controllers
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             if (string.IsNullOrEmpty(userId)) return BadRequest("user not found!");
 
-            Console.WriteLine($"Amount: {model.Amount}");
-            Console.WriteLine($"Description: {model.Description}");
-            Console.WriteLine($"TransactionDate: {model.TransactionDate}");
-            Console.WriteLine($"CategoryId: {model.CategoryId}");
-            Console.WriteLine($"transaction type: {model.TransactionType}");
             var transaction = new TransactionModel
             {
                 Amount = model.Amount,

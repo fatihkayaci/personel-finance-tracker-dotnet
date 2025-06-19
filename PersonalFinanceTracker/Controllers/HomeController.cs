@@ -1,7 +1,5 @@
 using System.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
-using PersonalFinanceTracker.Models;
-
 namespace PersonalFinanceTracker.Controllers
 {
     public class HomeController : Controller

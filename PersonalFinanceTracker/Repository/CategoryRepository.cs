@@ -1,7 +1,5 @@
 using Microsoft.EntityFrameworkCore;
 using PersonalFinanceTracker.Data;
-using PersonalFinanceTracker.Models;
-using PersonalFinanceTracker.Interface;
 
 namespace PersonalFinanceTracker.Repository
 {
