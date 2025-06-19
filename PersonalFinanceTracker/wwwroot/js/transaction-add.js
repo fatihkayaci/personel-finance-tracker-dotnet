@@ -7,8 +7,8 @@ document.addEventListener('DOMContentLoaded', function() {
     // İşlem tipi değiştiğinde kategorileri güncelle
     setupTransactionTypeListeners();
     
-    // Form submit olayını dinle
-    setupFormSubmission();
+    // js den alınacaksa burada method var buna bakarsın..
+    // setupFormSubmission();
     
     // Son işlemleri yükle
     loadRecentTransactionsPreview();
