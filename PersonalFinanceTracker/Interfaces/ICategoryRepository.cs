@@ -11,5 +11,6 @@ namespace PersonalFinanceTracker.Interface
         Task<bool> UpdateAsync(CategoryModel transaction);
         Task<bool> DeleteAsync(int id);
         Task<List<CategoryModel>> GetByUserIdAsync(string userId);
+        Task<List<CategoryModel>> GetCategoriesByTypeAndUserIdAsync(int transactionType, string userId);
     }
 }

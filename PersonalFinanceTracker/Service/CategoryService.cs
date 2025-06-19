@@ -40,5 +40,9 @@ namespace PersonalFinanceTracker.Service
         {
             return await _categoryRepository.UpdateAsync(category);
         }
+        public async Task<List<CategoryModel>> GetCategoriesByTypeAsync(int transactionType, string userId)
+        {
+            return await _categoryRepository.GetCategoriesByTypeAndUserIdAsync(transactionType, userId);
+        }
     }
 }

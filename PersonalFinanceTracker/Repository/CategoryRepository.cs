@@ -25,7 +25,7 @@ namespace PersonalFinanceTracker.Repository
             var category = await _dbContext.Categories.FirstOrDefaultAsync(c => c.Id == id);
             if (category == null)
                 return false;
-            
+
 
             _dbContext.Remove(category);
             var result = await _dbContext.SaveChangesAsync();
@@ -56,6 +56,12 @@ namespace PersonalFinanceTracker.Repository
             _dbContext.Update(category);
             var result = await _dbContext.SaveChangesAsync();
             return result > 0;
+        }
+        public async Task<List<CategoryModel>> GetCategoriesByTypeAndUserIdAsync(int transactionType, string userId)
+        {
+            return await _dbContext.Categories
+                .Where(c => c.TransactionType == transactionType)
+                .ToListAsync();
         }
     }
 }
