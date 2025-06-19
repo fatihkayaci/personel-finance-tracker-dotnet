@@ -2,7 +2,7 @@
     ViewData["Title"] = "Yeni İşlem Ekle";
     
 }
-@Model List<TransactionModel>;
+@model AddTransactionViewModel;
 
 <!-- Sayfa Başlığı -->
 <div class="row mb-4">
@@ -24,8 +24,7 @@
         </div>
     </div>
 </div>
-
-<!-- İşlem Ekleme Formu -->
+<!--İşlem Ekleme Formu -->
 <div class="row justify-content-center">
     <div class="col-lg-8 col-xl-6">
         <div class="card">
@@ -37,86 +36,31 @@
             </div>
             
             <div class="card-body">
-                <form id="addTransactionForm">
+                <form id="addTransactionForm" method="post" asp-action="Add" asp-controller="Transaction">
                     <!-- İşlem Tipi -->
                     <div class="mb-4">
                         <label class="form-label">İşlem Tipi *</label>
                         <div class="row">
                             <div class="col-6">
-                                <input type="radio" class="btn-check" name="transactionType" 
-                                       id="expenseRadio" value="expense" checked>
+                                <input type="radio" class="btn-check" asp-for="TransactionType"
+                                       id="expenseRadio" value=0 checked>
                                 <label class="btn btn-outline-danger w-100 py-3" for="expenseRadio">
-                                    <i class="fas fa-arrow-down fa-lg d-block mb-2"></i>
+                                    <i class="fas fa-arrow-up fa-lg d-block mb-2"></i>
                                     <strong>Gider</strong>
                                     <small class="d-block text-muted">Para çıkışı</small>
                                 </label>
                             </div>
                             <div class="col-6">
-                                <input type="radio" class="btn-check" name="transactionType" 
-                                       id="incomeRadio" value="income">
+                                <input type="radio" class="btn-check" asp-for="TransactionType" 
+                                       id="incomeRadio" value=1>
                                 <label class="btn btn-outline-success w-100 py-3" for="incomeRadio">
-                                    <i class="fas fa-arrow-up fa-lg d-block mb-2"></i>
+                                    <i class="fas fa-arrow-down fa-lg d-block mb-2"></i>
                                     <strong>Gelir</strong>
                                     <small class="d-block text-muted">Para girişi</small>
                                 </label>
                             </div>
                         </div>
                     </div>
-
-                    <!-- Tutar -->
-                    <div class="mb-3">
-                        <label for="amount" class="form-label">Tutar *</label>
-                        <div class="input-group input-group-lg">
-                            <span class="input-group-text">₺</span>
-                            <input type="number" class="form-control" id="amount" name="amount" 
-                                   placeholder="0.00" step="0.01" required>
-                        </div>
-                        <div class="form-text">Virgülden sonra 2 basamak girebilirsiniz</div>
-                    </div>
-
-                    <!-- Kategori -->
-                    <div class="mb-3">
-                        <label for="category" class="form-label">Kategori *</label>
-                        <select class="form-select form-select-lg" id="category" name="category" required>
-                            <option value="">Kategori seçin...</option>
-                            <!-- Gider kategorileri -->
-                            <optgroup label="📉 Gider Kategorileri" id="expense-categories">
-                                <option value="food">🍽️ Yemek & İçecek</option>
-                                <option value="transport">🚌 Ulaşım</option>
-                                <option value="shopping">🛒 Alışveriş</option>
-                                <option value="bills">📄 Faturalar</option>
-                                <option value="entertainment">🎮 Eğlence</option>
-                                <option value="health">🏥 Sağlık</option>
-                                <option value="education">📚 Eğitim</option>
-                                <option value="clothing">👕 Giyim</option>
-                                <option value="home">🏠 Ev & Yaşam</option>
-                                <option value="other-expense">📦 Diğer Giderler</option>
-                            </optgroup>
-                            <!-- Gelir kategorileri -->
-                            <optgroup label="📈 Gelir Kategorileri" id="income-categories" style="display: none;">
-                                <option value="salary">💼 Maaş</option>
-                                <option value="freelance">💻 Freelance</option>
-                                <option value="investment">📊 Yatırım</option>
-                                <option value="gift">🎁 Hediye</option>
-                                <option value="other-income">💰 Diğer Gelirler</option>
-                            </optgroup>
-                        </select>
-                    </div>
-
-                    <!-- Açıklama -->
-                    <div class="mb-3">
-                        <label for="description" class="form-label">Açıklama *</label>
-                        <input type="text" class="form-control" id="description" name="description" 
-                               placeholder="İşlem açıklaması..." required>
-                        <div class="form-text">İşleminizi tanımlayıcı bir açıklama yazın</div>
-                    </div>
-
-                    <!-- Tarih -->
-                    <div class="mb-4">
-                        <label for="date" class="form-label">Tarih *</label>
-                        <input type="date" class="form-control" id="date" name="date" required>
-                    </div>
-
                     <!-- Hızlı Tutar Butonları -->
                     <div class="mb-4">
                         <label class="form-label">Hızlı Tutar Seçimi</label>
@@ -139,6 +83,54 @@
                             </div>
                         </div>
                     </div>
+                    <!-- Tutar -->
+                    <div class="mb-3">
+                        <label for="amount" class="form-label">Tutar *</label>
+                        <div class="input-group input-group-lg">
+                            <span class="input-group-text">₺</span>
+                            <input type="number" class="form-control" id="amount" asp-for="Amount" 
+                                   placeholder="0.00" step="0.01" required>
+                        </div>
+                        <div class="form-text">Virgülden sonra 2 basamak girebilirsiniz</div>
+                    </div>
+
+                    <!-- Kategori -->
+                    <div class="mb-3">
+                        <label for="category" class="form-label">Kategori *</label>
+                        <select class="form-select form-select-lg" id="category" asp-for="CategoryId" required>
+                            <option value="">Kategori seçin...</option>
+                            <!-- Gider kategorileri -->
+                            <optgroup label="📉 Gider Kategorileri" id="expense-categories">
+                                @foreach(var category in Model.ExpenseCategories)
+                                {
+                                    <option value="@category.Id">@category.Name</option>
+                                }
+                            </optgroup>
+                            <!-- Gelir kategorileri -->
+                            <optgroup label="📈 Gelir Kategorileri" id="income-categories" style="display: none;">
+                                @foreach(var category in Model.IncomeCategories)
+                                {
+                                    <option value="@category.Id">@category.Name</option>
+                                }
+                            </optgroup>
+                        </select>
+                    </div>
+
+                    <!-- Açıklama -->
+                    <div class="mb-3">
+                        <label for="description" class="form-label">Açıklama *</label>
+                        <input type="text" class="form-control" id="description" asp-for="Description" 
+                               placeholder="İşlem açıklaması..." required>
+                        <div class="form-text">İşleminizi tanımlayıcı bir açıklama yazın</div>
+                    </div>
+
+                    <!-- Tarih -->
+                    <div class="mb-4">
+                        <label for="date" class="form-label">Tarih *</label>
+                        <input type="date" class="form-control" id="date" asp-for="TransactionDate" required>
+                    </div>
+
+                    
 
                     <!-- Form Butonları -->
                     <div class="row">

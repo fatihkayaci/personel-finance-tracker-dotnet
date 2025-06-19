@@ -33,27 +33,29 @@
             </button>
 
             <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav me-auto">
-                    <li class="nav-item">
-                        <a class="nav-link" href="@Url.Action("Index", "Dashboard")">
-                            <i class="fas fa-home me-1"></i>
-                            Dashboard
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="@Url.Action("Index", "Transaction")">
-                            <i class="fas fa-list me-1"></i>
-                            İşlemlerim
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="@Url.Action("Add", "Transaction")">
-                            <i class="fas fa-plus me-1"></i>
-                            Yeni İşlem
-                        </a>
-                    </li>
-                </ul>
-
+                @if (User.Identity.IsAuthenticated)
+                {
+                    <ul class="navbar-nav me-auto">
+                        <li class="nav-item">
+                            <a class="nav-link" href="@Url.Action("Index", "Dashboard")">
+                                <i class="fas fa-home me-1"></i>
+                                Dashboard
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="@Url.Action("Index", "Transaction")">
+                                <i class="fas fa-list me-1"></i>
+                                İşlemlerim
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="@Url.Action("Add", "Transaction")">
+                                <i class="fas fa-plus me-1"></i>
+                                Yeni İşlem
+                            </a>
+                        </li>
+                    </ul>
+                }
                 <!-- User Menu -->
                 <ul class="navbar-nav">
                     @if (User.Identity.IsAuthenticated)
