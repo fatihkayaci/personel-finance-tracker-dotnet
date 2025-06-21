@@ -141,7 +141,7 @@
                             </a>
                         </div>
                         <div class="col-md-6 mb-2">
-                            <button type="submit" class="btn btn-primary w-100" id="saveButton">
+                            <button type="submit" name="action" value="save" class="btn btn-primary w-100" id="saveButton">
                                 <i class="fas fa-check me-2"></i>
                                 <span class="button-text">Kaydet</span>
                                 <span class="button-spinner d-none">
@@ -150,13 +150,12 @@
                                 </span>
                             </button>
                         </div>
-                    </div>
+                        </div>
 
-                    <!-- Kaydet ve Yeni Ekle -->
-                    <div class="row mt-2">
+                        <!-- Kaydet ve Yeni Ekle -->
+                        <div class="row mt-2">
                         <div class="col-12">
-                            <button type="button" class="btn btn-outline-primary w-100" 
-                                    onclick="saveAndAddNew()">
+                            <button type="submit" name="action" value="saveAndNew" class="btn btn-outline-primary w-100">
                                 <i class="fas fa-plus me-2"></i>
                                 Kaydet ve Yeni Ekle
                             </button>

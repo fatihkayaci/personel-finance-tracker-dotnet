@@ -47,7 +47,7 @@ namespace PersonalFinanceTracker.Controllers
             return View(viewModel);
         }
         [HttpPost]
-        public async Task<IActionResult> Add(AddTransactionViewModel model)
+        public async Task<IActionResult> Add(AddTransactionViewModel model, string action)
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             if (string.IsNullOrEmpty(userId)) return BadRequest("user not found!");
@@ -63,7 +63,15 @@ namespace PersonalFinanceTracker.Controllers
                 CreatedDate = DateTime.Now
             };
             await _transactionService.AddTransactionAsync(transaction);
-            return RedirectToAction("Index");
+            switch (action)
+            {
+                case "save":
+                    return RedirectToAction("Index");
+                case "saveAndNew":
+                    return RedirectToAction("Add", "Transaction");
+                default:
+                    return RedirectToAction("Index");
+            }
         }
         public IActionResult Edit(int id)
         {
