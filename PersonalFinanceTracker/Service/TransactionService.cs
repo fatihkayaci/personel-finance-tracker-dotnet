@@ -76,5 +76,27 @@ namespace PersonalFinanceTracker.Service
             .Where(t => t.CategoryId == categoryId)
             .ToList();
         }
+        public async Task<decimal> GetMonthlyIncomeAsync(string userId)
+        {
+            var transactions = await _transactionRepository.GetByUserIdAsync(userId);
+            var now = DateTime.Now;
+            
+            return transactions
+                .Where(t => t.TransactionType == 1 && 
+                        t.TransactionDate.Month == now.Month && 
+                        t.TransactionDate.Year == now.Year)
+                .Sum(t => t.Amount);
+        }
+        public async Task<decimal> GetMonthlyExpenseAsync(string userId)
+        {
+            var transactions = await _transactionRepository.GetByUserIdAsync(userId);
+            var now = DateTime.Now;
+            
+            return transactions
+                .Where(t => t.TransactionType == 2 && 
+                        t.TransactionDate.Month == now.Month && 
+                        t.TransactionDate.Year == now.Year)
+                .Sum(t => t.Amount);
+        }
     }
 }

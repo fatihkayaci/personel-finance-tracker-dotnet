@@ -2,7 +2,6 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using PersonalFinanceTracker.Models.ViewModels;
 using System.Security.Claims;
-using System.Threading.Tasks;
 namespace PersonalFinanceTracker.Controllers
 {
     [Authorize]

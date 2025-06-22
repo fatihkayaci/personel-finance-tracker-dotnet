@@ -14,6 +14,7 @@ namespace PersonalFinanceTracker.Interface
         Task<decimal> GetBalanceAsync(string userId);
         Task<List<TransactionModel>> GetTransactionsByDateRangeAsync(string userId, DateTime startDate, DateTime endDate);
         Task<List<TransactionModel>> GetTransactionsByCategoryAsync(string userId, int categoryId);
-        
+        Task<decimal> GetMonthlyIncomeAsync(string userId);
+        Task<decimal> GetMonthlyExpenseAsync(string userId);
     }
 }
