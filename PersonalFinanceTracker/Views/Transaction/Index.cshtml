@@ -29,7 +29,7 @@
     <div class="col-lg-3 col-md-6 mb-3">
         <div class="card bg-success text-white">
             <div class="card-body text-center">
-                <i class="fas fa-arrow-up fa-2x mb-2"></i>
+                <i class="fas fa-arrow-down fa-2x mb-2"></i>
                 <h4 class="mb-1" id="filtered-income">@Model.TotalIncome</h4>
                 <small>Toplam Gelir</small>
             </div>
@@ -38,7 +38,7 @@
     <div class="col-lg-3 col-md-6 mb-3">
         <div class="card bg-danger text-white">
             <div class="card-body text-center">
-                <i class="fas fa-arrow-down fa-2x mb-2"></i>
+                <i class="fas fa-arrow-up fa-2x mb-2"></i>
                 <h4 class="mb-1" id="filtered-expense">@Model.TotalExpense</h4>
                 <small>Toplam Gider</small>
             </div>
@@ -236,7 +236,7 @@
                                                 <button class="btn btn-outline-primary btn-sm" onclick="editTransaction(@transaction.Id)">
                                                     <i class="fas fa-edit"></i>
                                                 </button>
-                                                <button class="btn btn-outline-danger btn-sm" onclick="deleteTransaction(@transaction.Id)">
+                                                <button class="btn btn-outline-danger btn-sm" onclick="deleteTransaction(@transaction.Id, '@transaction.Description', @transaction.Amount, @transaction.TransactionType)">
                                                     <i class="fas fa-trash"></i>
                                                 </button>
                                             </div>

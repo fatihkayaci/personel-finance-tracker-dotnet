@@ -58,7 +58,9 @@ namespace PersonalFinanceTracker.Service
         {
             var income = await GetTotalIncomeAsync(userId);
             var expense = await GetTotalExpenseAsync(userId);
-            return income - expense;
+            var result = income - expense;
+            Console.WriteLine($"Income: {income}, Expense: {expense}, Balance: {result}");
+            return result;
         }
         public async Task<List<TransactionModel>> GetTransactionsByDateRangeAsync(string userId, DateTime startDate, DateTime endDate)
         {

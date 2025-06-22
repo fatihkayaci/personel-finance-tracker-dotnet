@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using PersonalFinanceTracker.Models.ViewModels;
 using System.Security.Claims;
+using System.Threading.Tasks;
 namespace PersonalFinanceTracker.Controllers
 {
     [Authorize]
@@ -28,7 +29,6 @@ namespace PersonalFinanceTracker.Controllers
                 TotalExpense = await _transactionService.GetTotalExpenseAsync(userId),
                 Balance = await _transactionService.GetBalanceAsync(userId)
             };
-            
             return View(viewModel);
         }
 
@@ -40,9 +40,9 @@ namespace PersonalFinanceTracker.Controllers
             var viewModel = new AddTransactionViewModel
             {
                 TransactionDate = DateTime.Now,
-                TransactionType = 0,
-                ExpenseCategories = await _categoryService.GetCategoriesByTypeAsync(0, userId),
+                TransactionType = 2,
                 IncomeCategories = await _categoryService.GetCategoriesByTypeAsync(1, userId),
+                ExpenseCategories = await _categoryService.GetCategoriesByTypeAsync(2, userId),
             };
             return View(viewModel);
         }
@@ -71,6 +71,19 @@ namespace PersonalFinanceTracker.Controllers
                     return RedirectToAction("Add", "Transaction");
                 default:
                     return RedirectToAction("Index");
+            }
+        }
+        [HttpDelete]
+        public async Task<IActionResult> Delete(int id)
+        {
+            try
+            {
+                await _transactionService.DeleteTransactionAsync(id);
+                return Json(new { success = true, message = "İşlem başarıyla silindi" });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = "İşlem silinemedi: " + ex.Message });
             }
         }
         public IActionResult Edit(int id)

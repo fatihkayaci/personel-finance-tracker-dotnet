@@ -118,7 +118,7 @@ function filterTable() {
 
 // Filtrelenmiş özet bilgileri güncelle
 function updateFilteredSummary(income, expense, count) {
-    const balance = income - expense;
+    const balance = income + expense;
     
     document.getElementById('filtered-income').textContent = formatCurrency(income);
     document.getElementById('filtered-expense').textContent = formatCurrency(expense);
