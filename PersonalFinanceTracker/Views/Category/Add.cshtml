@@ -1,0 +1,123 @@
+@{
+    ViewData["Title"] = "Category - Add";
+}
+@model AddCategoryViewModel;
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">
+                        <i class="fas fa-plus-circle"></i> Yeni Kategori Ekle
+                    </h4>
+                </div>
+                <div class="card-body">
+                    <form method="post" asp-action="Add" asp-controller="Category">
+
+                        <div class="form-group mb-3">
+                            <label class="form-label">
+                                <i class="fas fa-tag"></i> Kategori Adı *
+                            </label>
+                            <input asp-for="Name" class="form-control" placeholder="Örn: Gıda, Ulaşım, Eğlence" />
+                        </div>
+
+                        <div class="form-group mb-3">
+                            <label class="form-label">
+                                <i class="fas fa-exchange-alt"></i> Kategori Tipi *
+                            </label>
+                            <select class="form-select" asp-for="TransactionType" required>
+                                <option value="">Seçiniz...</option>
+                                <option value="1">Gelir</option>
+                                <option value="2">Gider</option>
+                            </select>
+                        </div>
+@* 
+                        <div class="form-group mb-3">
+                            <label class="form-label">
+                                <i class="fas fa-palette"></i> Renk
+                            </label>
+                            <div class="row">
+                                <div class="col-6">
+                                    <input name="ColorPicker" type="color" class="form-control form-control-color" 
+                                           value="#007bff" title="Kategori rengi seçin">
+                                </div>
+                                <div class="col-6">
+                                    <input name="Color" type="text" class="form-control" 
+                                           placeholder="#007bff" maxlength="7">
+                                </div>
+                            </div>
+                            <small class="form-text text-muted">Grafiklerde ve raporlarda kullanılacak renk</small>
+                        </div>
+
+                        <div class="form-group mb-3">
+                            <label class="form-label">
+                                <i class="fas fa-icons"></i> İkon
+                            </label>
+                            <select name="Icon" class="form-select">
+                                <option value="">İkon seçin...</option>
+                                <option value="fas fa-shopping-cart">🛒 Alışveriş</option>
+                                <option value="fas fa-car">🚗 Ulaşım</option>
+                                <option value="fas fa-home">🏠 Ev</option>
+                                <option value="fas fa-utensils">🍽️ Yemek</option>
+                                <option value="fas fa-gamepad">🎮 Eğlence</option>
+                                <option value="fas fa-graduation-cap">🎓 Eğitim</option>
+                                <option value="fas fa-heartbeat">❤️ Sağlık</option>
+                                <option value="fas fa-tshirt">👕 Giyim</option>
+                                <option value="fas fa-money-bill-wave">💰 Gelir</option>
+                                <option value="fas fa-piggy-bank">🐷 Tasarruf</option>
+                            </select>
+                        </div> *@
+
+                        @* <div class="form-check mb-3">
+                            <input name="IsActive" class="form-check-input" type="checkbox" checked>
+                            <label class="form-check-label">
+                                Aktif kategori
+                            </label>
+                            <small class="form-text text-muted d-block">
+                                Pasif kategoriler işlem eklerken görünmez
+                            </small>
+                        </div> *@
+
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                            <a href="#" class="btn btn-secondary me-md-2">
+                                <i class="fas fa-arrow-left"></i> İptal
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save"></i> Kategori Ekle
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .form-control-color {
+        width: 100%;
+        height: 38px;
+    }
+    
+    .category-color-box {
+        min-width: 20px;
+        min-height: 20px;
+    }
+    
+    .card {
+        border: none;
+        border-radius: 10px;
+    }
+    
+    .card-header {
+        border-radius: 10px 10px 0 0 !important;
+    }
+    
+    .form-control, .form-select {
+        border-radius: 8px;
+    }
+    
+    .btn {
+        border-radius: 8px;
+    }
+</style>

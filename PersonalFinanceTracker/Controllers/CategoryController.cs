@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-
+using PersonalFinanceTracker.Models.ViewModels;
+using System.Security.Claims;
 namespace PersonalFinanceTracker.Controllers
 {
     [Authorize]
@@ -12,14 +13,29 @@ namespace PersonalFinanceTracker.Controllers
             _categoryService = categoryService;
         }
 
-        [HttpPost]
-        public async Task<IActionResult> Add(CategoryModel model)
+        [HttpGet]
+        public IActionResult Add()
         {
-            // UserId'yi ekle
-            model.UserId = User.Identity?.Name ?? "";
-            
-            var result = await _categoryService.AddCategoryAsync(model);
-            return RedirectToAction("Index");
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (string.IsNullOrEmpty(userId)) return BadRequest("user not found!");
+            return View();
+        }
+        [HttpPost]
+        public async Task<IActionResult> Add(AddCategoryViewModel model)
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (string.IsNullOrEmpty(userId)) return BadRequest("user not found!");
+
+            if (!ModelState.IsValid) return View(model);
+            Console.WriteLine(model.TransactionType);
+            var category = new CategoryModel
+            {
+                Name = model.Name,
+                TransactionType = model.TransactionType,
+                UserId = userId
+            };
+            await _categoryService.AddCategoryAsync(category);
+            return RedirectToAction("Index", "Transaction");
         }
     }
 }

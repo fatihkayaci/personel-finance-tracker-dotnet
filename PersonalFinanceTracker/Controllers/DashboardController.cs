@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Authorization;
 using System.Security.Claims;
 namespace PersonalFinanceTracker.Controllers
 {
+    [Authorize]
     public class DashboardController : Controller
     {
         private readonly ITransactionService _transactionService;
@@ -18,7 +19,7 @@ namespace PersonalFinanceTracker.Controllers
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             if (string.IsNullOrEmpty(userId)) return BadRequest("User not found");
-            
+
             var viewModel = new TransactionIndexViewModel
             {
                 Transactions = await _transactionService.GetTransactionsWithCategoryAsync(userId),
